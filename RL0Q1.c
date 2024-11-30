@@ -1,22 +1,39 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "Q1.h"
+#ifndef Q1_H
+#define Q1_H
+#define MAX_POINT 500
+
+typedef struct point {
+    double x;
+    double y;
+    double euclidianDistanceToOrigin;
+} point;
+
+int strStr(char * str, char * Str);
+double euclidianDistanceToTheOrigin(point p);
+double euclidianDistanceBtw2Points(point p1, point p2);
+void distance_insertion_sort(point * p, int size);
+
+#endif
 
 int main() {
 
-    FILE* L0Q1 = fopen("L0Q1.txt", "r");
+    FILE* L0Q1 = fopen("L0Q1.in", "r");
 
     if(L0Q1 == NULL) {
         printf("Nao foi possivel ler/encontrar o arquivo de entrada.");
         return 1;
     }
 
-    FILE* RL0Q1 = fopen("RL0Q1.txt", "w");
+    FILE* RL0Q1 = fopen("L0Q1.out", "w");
     if(L0Q1 == NULL) {
         printf("Nao foi possivel abrir/criar o arquivo de saida.");
         return 1;
     }
     char* line = malloc(sizeof(char) * 256);
+    int qtdLine = 0;
 
     while(fscanf(L0Q1, "%s", line) == 1) {
         if(strStr(line, "points")) {
@@ -33,15 +50,19 @@ int main() {
                 count = count + 1;
             }
             if(count > 0) {
-                distance_insertion_sort(points, count);
                 double shortcut = euclidianDistanceBtw2Points(points[0], points[count - 1]);
+                distance_insertion_sort(points, count);
+                if(qtdLine == 1) {
+                    fprintf(RL0Q1, "\n");
+                }
+                qtdLine = 1;
                 fprintf(RL0Q1, "points ");
                 for(int i = 0; i < count; i++) {
                     point a = points[i];
-                    fprintf(RL0Q1, "(%.2f, %.2f) ", a.x, a.y);
+                    fprintf(RL0Q1, "(%.0f,%.0f) ", a.x, a.y);
                 }
                 fprintf(RL0Q1, "distance %.2f ", distance);
-                fprintf(RL0Q1, "shortcut %.2f\n", shortcut);
+                fprintf(RL0Q1, "shortcut %.2f", shortcut);
             }
         }
     }
