@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 
 typedef struct point {
@@ -8,14 +9,23 @@ typedef struct point {
 } point;
 
 void writeOutput(char * line, FILE * output, int lineNumber);
+void writeStrings(FILE * output, char strings[500][500], int count);
+void writeIntegers(FILE * output,  int * integers, int count);
+void writeFloats(FILE * output,  float * floats, int count);
+void writePoints(FILE * output,  point * points, int count);
 void extractWord(char * array, int * indexes);
-void printStr(char * array, int init, int limit);
 void copySubStr(char * line, char * word, int init, int limit);
-int addSubStrToStr(char * line, char * word, int index, int space, int maxLength);
+void copySubStrMatrix(char * line, char word[500][500], int row, int init, int limit);
+void insertion_sort_point(point * array, int size);
+void insertion_sort_int(int * array, int size);
+void insertion_sort_float(float * array, int size);
 int isPoint(char * word);
 int isFloat(char * word);
 int isInteger(char * word);
 int verifyType(char * word);
+double strToNumber(char * str);
+double euclidianDistanceToTheOrigin(point p);
+point strToPoint(char * str);
 
 int main() {
     char * line = malloc(1000 * sizeof(char));
@@ -47,14 +57,12 @@ void writeOutput(char * line, FILE * output, int lineNumber) {
     int result;
     int indexes[2] = {0, 0};
 
-    char * text = malloc(1000 * sizeof(point));
-    char * points = malloc(1000 * sizeof(point));
-    char * floats = malloc(1000 * sizeof(float));
-    char * integers = malloc(1000 * sizeof(int));
-    char * strings = malloc(1000 * sizeof(char));
-    int i = 0, f = 0, s = 0, p = 0;
+    char strings[500][500];
+    int * integers = malloc(1000 * sizeof(int));
+    float * floats = malloc(1000 * sizeof(float));
+    point * points = malloc(1000 * sizeof(point));
+    int i = 0, f = 0, sRow = 0, p = 0;
 
-    points[0] = floats[0] = integers[0] = strings[0] = '\0';
 
     while(line[indexes[1]] != '\n' && line[indexes[1]]) {
         extractWord(line, indexes);
@@ -63,31 +71,38 @@ void writeOutput(char * line, FILE * output, int lineNumber) {
         result = verifyType(word);
         
         if(result == 0){ 
-            int space = p == 0 ? 0 : 1;
-            p = addSubStrToStr(points, word, p, space, 1000);
+            point newP = strToPoint(word);
+            points[p] = newP;
+            p = p + 1;
         }
         else if(result == 1) {
-            int space = f == 0 ? 0 : 1;
-            f = addSubStrToStr(floats, word, f, space, 1000);
+            float number = (float) strToNumber(word);
+            floats[f] = number;
+            f = f + 1;
         }
         else if(result == 2) {
-            int space = i == 0 ? 0 : 1;
-            i = addSubStrToStr(integers, word, i, space, 1000);
+            int number = (int) strToNumber(word);
+            integers[i] = number;
+            i = i + 1;
         }
         else if(result == 3) {
-            int space = s == 0 ? 0 : 1;
-            s = addSubStrToStr(strings, word, s, space, 1000);
+            copySubStrMatrix(word, strings, sRow, 0, 500);
+            sRow = sRow + 1;
         }
     }
-    
+
+    insertion_sort_int(integers, i);
+    insertion_sort_float(floats, f);
+    insertion_sort_point(points, p);
+
     if(lineNumber > 1) {
         fprintf(output, "\n");
     }
 
-    fprintf(output, "str:%s ", strings);
-    fprintf(output, "int:%s ", integers);  
-    fprintf(output, "float:%s ", floats);  
-    fprintf(output, "p:%s ", points);  
+    writeStrings(output, strings, sRow);
+    writeIntegers(output, integers, i);
+    writeFloats(output, floats, f);
+    writePoints(output, points, p);
 }
 
 void extractWord(char * array, int * indexes) {
@@ -99,10 +114,18 @@ void extractWord(char * array, int * indexes) {
 
 void copySubStr(char * line, char * word, int init, int limit) {
     int j = 0;
-    for(int i = init; i < limit; i = i + 1, j = j + 1) {
+    for(int i = init; i < limit && line[i]; i = i + 1, j = j + 1) {
         word[j] = line[i];
     }
     word[j] = '\0';
+}
+
+void copySubStrMatrix(char * line, char word[500][500], int row, int init, int limit) {
+    int j = 0;
+    for(int i = init; i < limit && line[i]; i = i + 1, j = j + 1) {
+        word[row][j] = line[i];
+    }
+    word[row][j] = '\0';
 }
 
 int isPoint(char * word) {
@@ -146,23 +169,132 @@ int verifyType(char * word) {
     return result;
 }
 
-int addSubStrToStr(char * line, char * word, int index, int space, int maxLength) {
-    if(space && index != maxLength - 1) {
-        line[index] = ' ';
-        index += 1;
+double strToNumber(char * str) {
+    double number = 0;
+    int isNegative = 0;
+    int i = 0;
+
+    if(str[0] == '-') {
+        isNegative = 1;
+        i = 1;
     }
-    for(int i = 0; word[i] && index != maxLength - 1; i++) {
-        line[index++] = word[i];
+
+    double b10 = 10;
+    int afterDot = 0;
+    for(i; str[i]; i++) {
+        if(str[i] >= '0' && str[i] <= '9') {
+            if(afterDot) {
+                number = number + ((str[i] - '0') / b10);
+                b10 = b10 * 10;
+            }
+            else
+                number = number * b10 + str[i] - '0';
+        }
+        else if(str[i] == '.') {
+            afterDot = 1;
+            b10 = 10;
+        }
     }
-    line[index] = '\0';
-    return index;
+
+    if(isNegative)
+        number = number * -1;
+
+    return number;
 }
 
-void printStr(char * array, int init, int limit) {
-    for(int i = init; i < limit; i++) {
-        printf("%c", array[i]);
+point strToPoint(char * str) {
+    point p;
+    char number[30];
+    int formatCharsPositions[3], f = 0;
+
+    for(int i = 0; str[i]; i++) {
+        if(str[i] == '(' || str[i] == ',' || str[i] == ')') {
+            formatCharsPositions[f++] = i;
+        } 
     }
+    copySubStr(str, number, formatCharsPositions[0] + 1, formatCharsPositions[1]);
+    p.x = strToNumber(number);
+    copySubStr(str, number, formatCharsPositions[1] + 1, formatCharsPositions[2]);
+    p.y = strToNumber(number);
+    p.euclidianDistanceToOrigin = euclidianDistanceToTheOrigin(p);
+
+    return p;
+}
+
+double euclidianDistanceToTheOrigin(point p) {
+    return sqrt(pow(p.x, 2) + pow(p.y, 2));
 }
 
 
+void writeStrings(FILE * file, char strings[500][500], int count) {
+    fprintf(file, "str:");
+    for(int i = 0; i < count; i++) {
+        fprintf(file, "%s ", strings[i]);
+    }
+    if(count == 0) {
+        fprintf(file, " ");
+    }
+}
+void writeIntegers(FILE * file,  int * integers, int count) {
+    fprintf(file, "int:");
+    for(int i = 0; i < count; i++) {
+        fprintf(file, "%d ", integers[i]);
+    }
+    if(count == 0) {
+        fprintf(file, " ");
+    }
+}
+void writeFloats(FILE * file,  float * floats, int count) {
+    fprintf(file, "float:");
+    for(int i = 0; i < count; i++) {
+        fprintf(file, "%g ", floats[i]);
+    }
+    if(count == 0) {
+        fprintf(file, " ");
+    }
+}
+void writePoints(FILE * file,  point * points, int count) {
+    fprintf(file, "p:");
+    for(int i = 0; i < count; i++) {
+        fprintf(file, "(%g,%g) ", points[i].x, points[i].y);
+    }
+    if(count == 0) {
+        fprintf(file, " ");
+    }
+}
 
+void insertion_sort_point(point * array, int size) {
+    for(int j = 1; j < size; j++) {
+        int i = j - 1;
+        point key = array[j];
+        while(i > -1 && array[i].euclidianDistanceToOrigin > key.euclidianDistanceToOrigin) {
+            array[i + 1] = array[i];
+            i = i - 1;
+        } 
+        array[i + 1] = key;
+    }
+}
+
+void insertion_sort_int(int * array, int size) {
+    for(int j = 1; j < size; j++) {
+        int i = j - 1;
+        int key = array[j];
+        while(i > -1 && array[i] > key) {
+            array[i + 1] = array[i];
+            i = i - 1;
+        } 
+        array[i + 1] = key;
+    }
+}
+
+void insertion_sort_float(float * array, int size) {
+    for(int j = 1; j < size; j++) {
+        int i = j - 1;
+        float key = array[j];
+        while(i > -1 && array[i] > key) {
+            array[i + 1] = array[i];
+            i = i - 1;
+        } 
+        array[i + 1] = key;
+    }
+}
