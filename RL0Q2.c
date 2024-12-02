@@ -19,6 +19,7 @@ void copySubStrMatrix(char * line, char word[500][500], int row, int init, int l
 void insertion_sort_point(point * array, int size);
 void insertion_sort_int(int * array, int size);
 void insertion_sort_float(float * array, int size);
+void insertion_sort_strings(char array[500][500], int size);
 int isPoint(char * word);
 int isFloat(char * word);
 int isInteger(char * word);
@@ -94,6 +95,7 @@ void writeOutput(char * line, FILE * output, int lineNumber) {
     insertion_sort_int(integers, i);
     insertion_sort_float(floats, f);
     insertion_sort_point(points, p);
+    insertion_sort_strings(strings, sRow);
 
     if(lineNumber > 1) {
         fprintf(output, "\n");
@@ -296,5 +298,25 @@ void insertion_sort_float(float * array, int size) {
             i = i - 1;
         } 
         array[i + 1] = key;
+    }
+}
+
+void insertion_sort_strings(char array[500][500], int size) {
+    for(int j = 1; j < size; j++) {
+        int k = 0;
+        int i = j - 1;
+        char * key = malloc(sizeof(char) * 500);
+        copySubStr(array[j], key, 0 , 500);
+        while(i > -1 && array[i][k] >= key[k]) {
+            while(array[i][k] == key[k]) {
+                k = k + 1;
+            }
+            if(array[i][k] > key[k]) {
+                printf("AQUI\n");
+                copySubStr(array[i], array[i + 1], 0, 500);
+                i = i - 1;
+            }
+        } 
+        copySubStr(key, array[i + 1], 0, 500);
     }
 }
