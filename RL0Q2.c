@@ -312,7 +312,6 @@ void insertion_sort_strings(char array[500][500], int size) {
                 k = k + 1;
             }
             if(array[i][k] > key[k]) {
-                printf("AQUI\n");
                 copySubStr(array[i], array[i + 1], 0, 500);
                 i = i - 1;
             }
