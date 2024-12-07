@@ -32,7 +32,7 @@ int main() {
         printf("Nao foi possivel abrir/criar o arquivo de saida.");
         return 1;
     }
-    char* line = malloc(sizeof(char) * 256);
+    char* line = malloc(sizeof(char) * 1001);
     int qtdLine = 0;
 
     while(fscanf(L0Q1, "%s", line) == 1) {
@@ -59,7 +59,7 @@ int main() {
                 fprintf(RL0Q1, "points ");
                 for(int i = 0; i < count; i++) {
                     point a = points[i];
-                    fprintf(RL0Q1, "(%.0f,%.0f) ", a.x, a.y);
+                    fprintf(RL0Q1, "(%.2f,%.2f) ", a.x, a.y);
                 }
                 fprintf(RL0Q1, "distance %.2f ", distance);
                 fprintf(RL0Q1, "shortcut %.2f", shortcut);
@@ -69,8 +69,6 @@ int main() {
 
     fclose(L0Q1);
     fclose(RL0Q1);
-
-    printf("Processo finalizado.");
 }
 
 

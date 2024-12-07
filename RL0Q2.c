@@ -29,7 +29,7 @@ double euclidianDistanceToTheOrigin(point p);
 point strToPoint(char * str);
 
 int main() {
-    char * line = malloc(1000 * sizeof(char));
+    char * line = malloc(1001 * sizeof(char));
     int lineNumber = 1;
 
     FILE * input;
@@ -231,37 +231,40 @@ double euclidianDistanceToTheOrigin(point p) {
 void writeStrings(FILE * file, char strings[500][500], int count) {
     fprintf(file, "str:");
     for(int i = 0; i < count; i++) {
-        fprintf(file, "%s ", strings[i]);
-    }
-    if(count == 0) {
-        fprintf(file, " ");
+        if(i >= 1) {
+            fprintf(file, " ");
+        }
+        fprintf(file, "%s", strings[i]);
     }
 }
 void writeIntegers(FILE * file,  int * integers, int count) {
+    fprintf(file, " ");
     fprintf(file, "int:");
     for(int i = 0; i < count; i++) {
-        fprintf(file, "%d ", integers[i]);
-    }
-    if(count == 0) {
-        fprintf(file, " ");
+        if(i >= 1) {
+            fprintf(file, " ");
+        }
+        fprintf(file, "%d", integers[i]);
     }
 }
 void writeFloats(FILE * file,  float * floats, int count) {
+    fprintf(file, " ");
     fprintf(file, "float:");
     for(int i = 0; i < count; i++) {
-        fprintf(file, "%g ", floats[i]);
-    }
-    if(count == 0) {
-        fprintf(file, " ");
+        if(i >= 1) {
+            fprintf(file, " ");
+        }
+        fprintf(file, "%.2f", floats[i]);
     }
 }
 void writePoints(FILE * file,  point * points, int count) {
+    fprintf(file, " ");
     fprintf(file, "p:");
     for(int i = 0; i < count; i++) {
-        fprintf(file, "(%g,%g) ", points[i].x, points[i].y);
-    }
-    if(count == 0) {
-        fprintf(file, " ");
+        if(i >= 1) {
+            fprintf(file, " ");
+        }
+        fprintf(file, "(%.2f,%.2f)", points[i].x, points[i].y);
     }
 }
 
